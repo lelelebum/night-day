@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbital Sun & Moon</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 3000px;
+      background: #e0f7fa;
+      transition: background 0.5s ease;
+    }
+
+    .wrapper {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(80vw, 80vh);
+      height: min(80vw, 80vh);
+      pointer-events: none;
+    }
+
+    .circle-path {
+      width: 100%;
+      height: 100%;
+      border: 2px solid gray;
+      border-radius: 50%;
+      position: relative;
+      overflow: visible; /* важно, чтобы orb не обрезался */
+    }
+
+    .circle-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 80%;
+      height: 80%;
+      object-fit: cover;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .orb {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: yellow;
+      box-shadow: 0 0 25px rgba(255, 255, 0, 0.7);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .orb {
+        width: 36px;
+        height: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper" id="wrapper">
+  <div class="circle-path" id="circle">
+    <img id="circleImage" class="circle-image" src="day.jpg" alt="center image" />
+    <div class="orb" id="orb"></div>
+  </div>
+</div>
+
+<script>
+  const orb = document.getElementById('orb')
+  const circleImage = document.getElementById('circleImage')
+  const wrapper = document.getElementById('wrapper')
+
+  function updateOrbPosition() {
+    const scrollable = document.body.scrollHeight - window.innerHeight
+    const scrollPercent = window.scrollY / scrollable
+    const angle = scrollPercent * 2 * Math.PI
+    const adjustedAngle = angle - Math.PI / 2
+
+    const wrapperRect = wrapper.getBoundingClientRect()
+    const wrapperSize = wrapperRect.width
+    const orbSize = orb.offsetWidth
+
+    const center = wrapperSize / 2
+    const baseRadius = center * 0.98 // чуть внутри круга
+    const radius = baseRadius + orbSize / 5 // чтобы orb касался круга внешне
+
+    const x = center + radius * Math.cos(adjustedAngle)
+    const y = center + radius * Math.sin(adjustedAngle)
+
+    orb.style.left = `${x - orbSize / 2}px`
+    orb.style.top = `${y - orbSize / 2}px`
+
+    if (angle % (2 * Math.PI) < Math.PI) {
+      // день
+      orb.style.background = 'yellow'
+      orb.style.boxShadow = '0 0 25px rgba(255,255,0,0.7)'
+      document.body.style.background = '#e0f7fa'
+      circleImage.src = 'day.jpg'
+    } else {
+      // ночь
+      orb.style.background = 'white'
+      orb.style.boxShadow = '0 0 25px rgba(255,255,255,0.4)'
+      document.body.style.background = '#1c1c2a'
+      circleImage.src = 'night.jpg'
+    }
+  }
+
+  window.addEventListener('scroll', updateOrbPosition)
+  window.addEventListener('resize', updateOrbPosition)
+  window.addEventListener('load', updateOrbPosition)
+</script>
+
+</body>
+</html>
